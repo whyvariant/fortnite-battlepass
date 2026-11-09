@@ -1,16 +1,15 @@
--- Chicken Farm Module (PlaceId: 137233438285284)
 return function(elements)
     local env = getgenv()
     local plr = game:GetService("Players").LocalPlayer
 
-    local remotes = game:GetService("ReplicatedStorage").Paper.Remotes
-    local mainEvent = remotes.__remoteevent
-    local mainFunction = remotes.__remotefunction
-    local eggsFolder = workspace.Eggs
+    local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Paper"):WaitForChild("Remotes")
+    local mainEvent = remotes:WaitForChild("__remoteevent")
+    local mainFunction = remotes:WaitForChild("__remotefunction")
+    local eggsFolder = workspace:WaitForChild("Eggs")
     
-    local plot = workspace.Plots[plr.Name]
-    local buyBtns = plot.Buttons.BuyChickens
-    local cashText = plr.PlayerGui.Main.Currencies.Cash.List.Amount
+    local plot = workspace:WaitForChild("Plots"):WaitForChild(plr.Name)
+    local buyBtns = plot:WaitForChild("Buttons"):WaitForChild("BuyChickens")
+    local cashText = plr.PlayerGui:WaitForChild("Main"):WaitForChild("Currencies"):WaitForChild("Cash"):WaitForChild("List"):WaitForChild("Amount")
 
     local suffixes = {
         "K","M","B","T","Qd","Qn","Sx","Sp","Oc","No","De",
@@ -36,7 +35,12 @@ return function(elements)
         return base * (multiplier or 1)
     end
 
-    elements:Label("Eggs")
+    env.FarmSpeed = 0.01
+
+    elements:Slider("Farm Speed (Delay)", 0, 0.1, 0.01, function(val)
+        env.FarmSpeed = val
+    end)
+
     env.AutoCollectEggs = false
     elements:Toggle("Auto Collect Eggs", false, function(state)
         env.AutoCollectEggs = state
@@ -46,15 +50,13 @@ return function(elements)
                 for _, egg in ipairs(eggsFolder:GetChildren()) do
                     if not env.AutoCollectEggs then break end
                     mainEvent:FireServer("Collect Egg", egg.Name)
-                    egg:Destroy()
                 end
                 pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
-                task.wait(0.5)
+                task.wait(env.FarmSpeed)
             end
         end)
     end)
 
-    elements:Label("Chickens")
     env.AutoBuyChickens = false
     elements:Toggle("Auto Buy Chickens", false, function(state)
         env.AutoBuyChickens = state
@@ -77,14 +79,13 @@ return function(elements)
                 if tobuy > 0 then
                     pcall(function() mainFunction:InvokeServer("Buy Chickens", tobuy) end)
                 end
-                task.wait(0.2)
+                task.wait(env.FarmSpeed)
             end
         end)
     end)
 
-    elements:Label("Income")
     env.AutoFarmCash = false
-    elements:Toggle("Auto Collect Cash & Merge", false, function(state)
+    elements:Toggle("Auto Cash & Merge", false, function(state)
         env.AutoFarmCash = state
         if not state then return end
         task.spawn(function()
@@ -94,7 +95,7 @@ return function(elements)
                     mainFunction:InvokeServer("Upgrade Process Level")
                     mainFunction:InvokeServer("Merge Chickens")
                 end)
-                task.wait(0.5)
+                task.wait(env.FarmSpeed)
             end
         end)
     end)
