@@ -35,24 +35,42 @@ return function(elements)
         return base * (multiplier or 1)
     end
 
+    -- 1. Egg Auto-Collect (Triggers only when an egg spawns)
     env.AutoCollectEggs = false
+    local eggConnection
+
     elements:Toggle("Auto Collect Eggs", false, function(state)
         env.AutoCollectEggs = state
-        if not state then return end
-        task.spawn(function()
-            while env.AutoCollectEggs do
-                for _, egg in ipairs(eggsFolder:GetChildren()) do
-                    if not env.AutoCollectEggs then break end
-                    mainEvent:FireServer("Collect Egg", egg.Name)
-                    egg:Destroy()
-                end
-                pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
-                
-                task.wait()
+        
+        if state then
+            -- Instantly collect existing
+            for _, egg in ipairs(eggsFolder:GetChildren()) do
+                mainEvent:FireServer("Collect Egg", egg.Name)
+                egg:Destroy()
             end
-        end)
+            
+            -- Listen for new ones and collect instantly
+            eggConnection = eggsFolder.ChildAdded:Connect(function(egg)
+                if not env.AutoCollectEggs then return end
+                task.wait(0.05)
+                mainEvent:FireServer("Collect Egg", egg.Name)
+                egg:Destroy()
+                mainFunction:InvokeServer("Deposit Eggs")
+            end)
+            
+            -- Infinite loop to deposit eggs constantly
+            task.spawn(function()
+                while env.AutoCollectEggs do
+                    pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
+                    task.wait()
+                end
+            end)
+        else
+            if eggConnection then eggConnection:Disconnect() end
+        end
     end)
 
+    -- 2. Chicken Auto-Buy
     env.AutoBuyChickens = false
     elements:Toggle("Auto Buy Chickens", false, function(state)
         env.AutoBuyChickens = state
@@ -75,24 +93,23 @@ return function(elements)
                 if tobuy > 0 then
                     pcall(function() mainFunction:InvokeServer("Buy Chickens", tobuy) end)
                 end
-                
                 task.wait()
             end
         end)
     end)
 
+    -- 3. Auto Cash & Merge (Synced up for max speed)
     env.AutoFarmCash = false
     elements:Toggle("Auto Cash & Merge", false, function(state)
         env.AutoFarmCash = state
         if not state then return end
         task.spawn(function()
             while env.AutoFarmCash do
-                pcall(function()
-                    mainFunction:InvokeServer("Collect Cash")
+                pcall(function() 
+                    mainFunction:InvokeServer("Collect Cash") 
                     mainFunction:InvokeServer("Upgrade Process Level")
                     mainFunction:InvokeServer("Merge Chickens")
                 end)
-                
                 task.wait()
             end
         end)
