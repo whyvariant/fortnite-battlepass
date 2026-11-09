@@ -28,7 +28,7 @@ local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.fromOffset(620, 420)
 MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210)
 MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-MainFrame.BackgroundTransparency = 0.1
+MainFrame.BackgroundTransparency = 0.15
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Parent = MainUI
@@ -363,7 +363,13 @@ function Elements:Slider(text, min, max, default, cb, container)
             local trackWidth = track.AbsoluteSize.X
             local p = math.clamp((mouseX - trackX) / trackWidth, 0, 1)
             
-            local val = math.floor(min + (max - min) * p + 0.5)
+            local val = min + (max - min) * p
+            if max <= 1 then
+                val = math.floor(val * 100 + 0.5) / 100
+            else
+                val = math.floor(val + 0.5)
+            end
+            
             fill.Size = UDim2.fromScale(p, 1)
             valLabel.Text = tostring(val)
             cb(val)
