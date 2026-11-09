@@ -3,6 +3,7 @@ local env = getgenv()
 local http = game:GetService("HttpService")
 local tween = game:GetService("TweenService")
 local input = game:GetService("UserInputService")
+local vu = game:GetService("VirtualUser")
 
 local GITHUB_USER = "whyvariant"
 local GITHUB_REPO = "fortnite-battlepass"
@@ -26,30 +27,30 @@ MainUI.Parent = hui
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.fromOffset(620, 420)
 MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-MainFrame.BackgroundTransparency = 0.6
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+MainFrame.BackgroundTransparency = 0.15 -- Lucid Glass
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Parent = MainUI
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
 local Stroke = Instance.new("UIStroke", MainFrame)
 Stroke.Color = Color3.fromRGB(255, 255, 255)
-Stroke.Transparency = 0.8
-Stroke.Thickness = 1.5
+Stroke.Transparency = 0.85
+Stroke.Thickness = 1
 
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-TopBar.BackgroundTransparency = 0.5
+TopBar.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+TopBar.BackgroundTransparency = 0.1
 TopBar.Parent = MainFrame
-Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
 
 local TopBarFix = Instance.new("Frame")
 TopBarFix.Size = UDim2.new(1, 0, 0, 15)
 TopBarFix.Position = UDim2.new(0, 0, 1, -15)
-TopBarFix.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-TopBarFix.BackgroundTransparency = 0.5
+TopBarFix.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+TopBarFix.BackgroundTransparency = 0.1
 TopBarFix.BorderSizePixel = 0
 TopBarFix.Parent = TopBar
 
@@ -65,24 +66,24 @@ Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = TopBar
 
 local MinimizeBtn = Instance.new("TextButton")
-MinimizeBtn.Size = UDim2.fromOffset(24, 24)
-MinimizeBtn.Position = UDim2.new(1, -70, 0, 8)
+MinimizeBtn.Size = UDim2.fromOffset(30, 26)
+MinimizeBtn.Position = UDim2.new(1, -85, 0, 7)
 MinimizeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-MinimizeBtn.BackgroundTransparency = 0.5
-MinimizeBtn.Text = "-"
+MinimizeBtn.Text = "—"
 MinimizeBtn.TextColor3 = Color3.new(1,1,1)
 MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.TextSize = 14
 MinimizeBtn.Parent = TopBar
 Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(0, 6)
 
 local KillBtn = Instance.new("TextButton")
-KillBtn.Size = UDim2.fromOffset(24, 24)
-KillBtn.Position = UDim2.new(1, -38, 0, 8)
+KillBtn.Size = UDim2.fromOffset(30, 26)
+KillBtn.Position = UDim2.new(1, -45, 0, 7)
 KillBtn.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
-KillBtn.BackgroundTransparency = 0.2
 KillBtn.Text = "X"
 KillBtn.TextColor3 = Color3.new(1,1,1)
 KillBtn.Font = Enum.Font.GothamBold
+KillBtn.TextSize = 14
 KillBtn.Parent = TopBar
 Instance.new("UICorner", KillBtn).CornerRadius = UDim.new(0, 6)
 
@@ -154,7 +155,7 @@ local function makeTab(name, yPos)
     b.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     b.BackgroundTransparency = 1
     b.Text = "  " .. name
-    b.TextColor3 = Color3.fromRGB(180, 180, 180)
+    b.TextColor3 = Color3.fromRGB(160, 160, 170)
     b.Font = Enum.Font.GothamMedium
     b.TextSize = 13
     b.TextXAlignment = Enum.TextXAlignment.Left
@@ -175,10 +176,10 @@ local function switchTab(activeTab)
     
     for _, tab in ipairs({HomeTab, GameTab, ListTab, SettingsTab}) do
         tab.BackgroundTransparency = 1
-        tab.TextColor3 = Color3.fromRGB(180, 180, 180)
+        tab.TextColor3 = Color3.fromRGB(160, 160, 170)
     end
     
-    activeTab.Tab.BackgroundTransparency = 0.85
+    activeTab.Tab.BackgroundTransparency = 0.9
     activeTab.Tab.TextColor3 = Color3.fromRGB(255, 255, 255)
     activeTab.Container.Visible = true
 end
@@ -210,7 +211,7 @@ input.InputChanged:Connect(function(inp)
 end)
 
 local Elements = {}
-function Elements:Label(text)
+function Elements:Label(text, container)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, 0, 0, 20)
     lbl.BackgroundTransparency = 1
@@ -219,10 +220,10 @@ function Elements:Label(text)
     lbl.Font = Enum.Font.GothamBold
     lbl.TextSize = 13
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = GameContainer
+    lbl.Parent = container or GameContainer
 end
 
-function Elements:Button(text, cb)
+function Elements:Button(text, cb, container)
     local b = Instance.new("TextButton")
     b.Size = UDim2.new(1, 0, 0, 34)
     b.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -231,18 +232,18 @@ function Elements:Button(text, cb)
     b.TextColor3 = Color3.new(1,1,1)
     b.Font = Enum.Font.GothamMedium
     b.TextSize = 13
-    b.Parent = GameContainer
+    b.Parent = container or GameContainer
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
     b.MouseButton1Click:Connect(cb)
 end
 
-function Elements:Toggle(text, default, cb)
+function Elements:Toggle(text, default, cb, container)
     local h = Instance.new("TextButton")
     h.Size = UDim2.new(1, 0, 0, 36)
     h.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     h.BackgroundTransparency = 0.9
     h.Text = ""
-    h.Parent = GameContainer
+    h.Parent = container or GameContainer
     Instance.new("UICorner", h).CornerRadius = UDim.new(0, 6)
 
     local l = Instance.new("TextLabel")
@@ -298,6 +299,51 @@ MinimizeBtn.MouseButton1Click:Connect(function()
     ContentArea.Visible = not minimized
 end)
 
+-- =========================================================
+-- SETTINGS TOGGLES
+-- =========================================================
+env.AutoRejoin = false
+env.AutoExecute = true
+env.AntiAfk = false
+
+Elements:Label("Universal Settings", SettingsContainer)
+
+Elements:Toggle("Auto Rejoin After Kick", false, function(state)
+    env.AutoRejoin = state
+    if state then
+        task.spawn(function()
+            while env.AutoRejoin do
+                game:GetService("GuiService").ErrorMessageChanged:Wait()
+                if env.AutoRejoin then
+                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                end
+            end
+        end)
+    end
+end, SettingsContainer)
+
+Elements:Toggle("Auto Execute When Joining", true, function(state)
+    env.AutoExecute = state
+end, SettingsContainer)
+
+Elements:Toggle("Anti-AFK", false, function(state)
+    env.AntiAfk = state
+    if state then
+        task.spawn(function()
+            while env.AntiAfk do
+                task.wait(60)
+                if env.AntiAfk then
+                    vu:CaptureController()
+                    vu:ClickButton2(Vector2.new())
+                end
+            end
+        end)
+    end
+end, SettingsContainer)
+
+-- =========================================================
+-- GAME LOADER
+-- =========================================================
 local currentPlaceId = tostring(game.PlaceId)
 local fetchUrl = getGitPath("games") .. currentPlaceId .. ".lua"
 
@@ -316,6 +362,9 @@ if not ok then
     Elements:Button("Copy Game ID", function() setclipboard(currentPlaceId) end)
 end
 
+-- =========================================================
+-- GAMES LIST
+-- =========================================================
 local listOk, gameList = pcall(function()
     return http:JSONDecode(game:HttpGet(BASE_URL .. "src/gameslist.json"))
 end)
@@ -335,7 +384,7 @@ if listOk and gameList then
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
         
         btn.MouseButton1Click:Connect(function()
-            if queue_on_teleport then
+            if env.AutoExecute and queue_on_teleport then
                 queue_on_teleport('loadstring(game:HttpGet("' .. BASE_URL .. 'src/init.lua"))()')
             end
             game:GetService("TeleportService"):Teleport(tonumber(g.id))
