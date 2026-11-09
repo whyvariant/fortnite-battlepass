@@ -35,12 +35,6 @@ return function(elements)
         return base * (multiplier or 1)
     end
 
-    env.FarmSpeed = 0.01
-
-    elements:Slider("Farm Speed (Delay)", 0, 0.1, 0.01, function(val)
-        env.FarmSpeed = val
-    end)
-
     env.AutoCollectEggs = false
     elements:Toggle("Auto Collect Eggs", false, function(state)
         env.AutoCollectEggs = state
@@ -50,11 +44,10 @@ return function(elements)
                 for _, egg in ipairs(eggsFolder:GetChildren()) do
                     if not env.AutoCollectEggs then break end
                     mainEvent:FireServer("Collect Egg", egg.Name)
-                    task.wait(0.01)
                     egg:Destroy()
                 end
                 pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
-                task.wait(env.FarmSpeed)
+                task.wait()
             end
         end)
     end)
@@ -81,7 +74,7 @@ return function(elements)
                 if tobuy > 0 then
                     pcall(function() mainFunction:InvokeServer("Buy Chickens", tobuy) end)
                 end
-                task.wait(env.FarmSpeed)
+                task.wait()
             end
         end)
     end)
@@ -97,7 +90,7 @@ return function(elements)
                     mainFunction:InvokeServer("Upgrade Process Level")
                     mainFunction:InvokeServer("Merge Chickens")
                 end)
-                task.wait(env.FarmSpeed)
+                task.wait()
             end
         end)
     end)
