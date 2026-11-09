@@ -5,85 +5,119 @@ local tween = game:GetService("TweenService")
 local input = game:GetService("UserInputService")
 
 -- =========================================================
--- SETUP & CONFIG
+-- YOUR NEW GITHUB URL
 -- =========================================================
-if not isfolder("BrainrotPolice") then makefolder("BrainrotPolice") end
-if not isfolder("BrainrotPolice/Games") then makefolder("BrainrotPolice/Games") end
-if not isfile("BrainrotPolice/Config.json") then
-    writefile("BrainrotPolice/Config.json", http:JSONEncode({
-        settings = { auto_rejoin_on_kick = false, disable_3d_rendering = false }
-    }))
-end
+local GITHUB_USER = "whyvariant"
+local GITHUB_REPO = "fortnite-battlepass"
+local BASE_URL = "https://raw.githubusercontent.com/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/main/"
 
 function env.getgitpath(where)
-    local mainBuild = "https://raw.githubusercontent.com/IcantAffordSynapse/BrainrotPolice/refs/heads/main/"
-    if where == "src" then return mainBuild .. "src/" 
-    elseif where == "games" then return mainBuild .. "src/games/" end
-end
-
-function env.setconfig(key, value)
-    local dec = http:JSONDecode(readfile("BrainrotPolice/Config.json"))
-    dec[tostring(game.PlaceId)] = dec[tostring(game.PlaceId)] or {}
-    dec[tostring(game.PlaceId)][key] = value
-    writefile("BrainrotPolice/Config.json", http:JSONEncode(dec))
+    if where == "src" then return BASE_URL .. "src/" 
+    elseif where == "games" then return BASE_URL .. "src/games/" end
 end
 
 -- =========================================================
--- UI CREATION
+-- CLEAN UP OLD UI
 -- =========================================================
 local CoreGui = game:GetService("CoreGui")
 local hui = gethui and gethui() or CoreGui
-local oldUI = hui:FindFirstChild("BrainrotUI")
+local oldUI = hui:FindFirstChild("NewBrainrotUI")
 if oldUI then oldUI:Destroy() end
 
+-- =========================================================
+-- BUILD CLEAN UI
+-- =========================================================
 local MainUI = Instance.new("ScreenGui")
-MainUI.Name = "BrainrotUI"
+MainUI.Name = "NewBrainrotUI"
 MainUI.ResetOnSpawn = false
 MainUI.Parent = hui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.fromOffset(600, 400)
 MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 28)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Parent = MainUI
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
-local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.fromOffset(140, 400)
-Sidebar.BackgroundColor3 = Color3.fromRGB(18, 18, 20)
-Sidebar.BorderSizePixel = 0
-Sidebar.Parent = MainFrame
-Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(50, 50, 60)
+MainStroke.Thickness = 1
 
-local ContentArea = Instance.new("Frame")
-ContentArea.Size = UDim2.new(1, -140, 1, 0)
-ContentArea.Position = UDim2.fromOffset(140, 0)
-ContentArea.BackgroundTransparency = 1
-ContentArea.Parent = MainFrame
-
--- Topbar / Kill Switch
+-- Top Bar
 local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 30)
-TopBar.BackgroundTransparency = 1
-TopBar.Parent = ContentArea
+TopBar.Size = UDim2.new(1, 0, 0, 35)
+TopBar.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+TopBar.Parent = MainFrame
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 8)
+
+-- Hide bottom corners of top bar
+local TopBarFix = Instance.new("Frame")
+TopBarFix.Size = UDim2.new(1, 0, 0, 10)
+TopBarFix.Position = UDim2.new(0, 0, 1, -10)
+TopBarFix.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+TopBarFix.BorderSizePixel = 0
+TopBarFix.Parent = TopBar
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0, 200, 1, 0)
+Title.Position = UDim2.fromOffset(15, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "whyvariant UI"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 13
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TopBar
+
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Size = UDim2.fromOffset(25, 25)
+MinimizeBtn.Position = UDim2.new(1, -70, 0, 5)
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.new(1,1,1)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Parent = TopBar
+Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(0, 4)
 
 local KillBtn = Instance.new("TextButton")
-KillBtn.Size = UDim2.fromOffset(70, 24)
-KillBtn.Position = UDim2.new(1, -80, 0, 3)
+KillBtn.Size = UDim2.fromOffset(25, 25)
+KillBtn.Position = UDim2.new(1, -35, 0, 5)
 KillBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-KillBtn.Text = "Kill Script"
+KillBtn.Text = "X"
 KillBtn.TextColor3 = Color3.new(1,1,1)
 KillBtn.Font = Enum.Font.GothamBold
-KillBtn.TextSize = 12
 KillBtn.Parent = TopBar
 Instance.new("UICorner", KillBtn).CornerRadius = UDim.new(0, 4)
 
--- Tab Containers
+-- Sidebar Background
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.fromOffset(140, 365)
+Sidebar.Position = UDim2.fromOffset(0, 35)
+Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+Sidebar.Parent = MainFrame
+
+-- Smooth Tab Indicator
+local Indicator = Instance.new("Frame")
+Indicator.Size = UDim2.fromOffset(3, 30)
+Indicator.Position = UDim2.fromOffset(0, 15)
+Indicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+Indicator.BorderSizePixel = 0
+Indicator.Parent = Sidebar
+Instance.new("UICorner", Indicator).CornerRadius = UDim.new(0, 4)
+
+-- Content Area
+local ContentArea = Instance.new("Frame")
+ContentArea.Size = UDim2.new(1, -140, 1, -35)
+ContentArea.Position = UDim2.fromOffset(140, 35)
+ContentArea.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+ContentArea.Parent = MainFrame
+
+-- Scroll Containers
 local GameContainer = Instance.new("ScrollingFrame")
-GameContainer.Size = UDim2.new(1, -20, 1, -40)
-GameContainer.Position = UDim2.fromOffset(10, 35)
+GameContainer.Size = UDim2.new(1, -20, 1, -20)
+GameContainer.Position = UDim2.fromOffset(10, 10)
 GameContainer.BackgroundTransparency = 1
 GameContainer.ScrollBarThickness = 2
 GameContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -92,8 +126,8 @@ GameContainer.Parent = ContentArea
 Instance.new("UIListLayout", GameContainer).Padding = UDim.new(0, 8)
 
 local ListContainer = Instance.new("ScrollingFrame")
-ListContainer.Size = UDim2.new(1, -20, 1, -40)
-ListContainer.Position = UDim2.fromOffset(10, 35)
+ListContainer.Size = UDim2.new(1, -20, 1, -20)
+ListContainer.Position = UDim2.fromOffset(10, 10)
 ListContainer.BackgroundTransparency = 1
 ListContainer.ScrollBarThickness = 2
 ListContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -103,43 +137,45 @@ ListContainer.Parent = ContentArea
 Instance.new("UIListLayout", ListContainer).Padding = UDim.new(0, 8)
 
 -- Sidebar Buttons
-local function createTabBtn(text, yPos)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.fromOffset(10, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
-    btn.Parent = Sidebar
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    return btn
+local function makeTab(name, yPos)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -20, 0, 30)
+    b.Position = UDim2.fromOffset(10, yPos)
+    b.BackgroundTransparency = 1
+    b.Text = "  " .. name
+    b.TextColor3 = Color3.fromRGB(160, 160, 170)
+    b.Font = Enum.Font.GothamMedium
+    b.TextSize = 13
+    b.TextXAlignment = Enum.TextXAlignment.Left
+    b.Parent = Sidebar
+    return b
 end
 
-local GameTab = createTabBtn("Game", 20)
-local ListTab = createTabBtn("Games List", 60)
+local GameTab = makeTab("Game", 15)
+local ListTab = makeTab("Games List", 50)
 
-local function switchTab(tab)
-    if tab == "Game" then
-        GameTab.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-        ListTab.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-        GameContainer.Visible = true
-        ListContainer.Visible = false
+-- Tab Logic
+local function switchTab(t)
+    GameContainer.Visible = (t == "Game")
+    ListContainer.Visible = (t == "List")
+    
+    if t == "Game" then
+        GameTab.TextColor3 = Color3.new(1,1,1)
+        ListTab.TextColor3 = Color3.fromRGB(160, 160, 170)
+        tween:Create(Indicator, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.fromOffset(0, 15)}):Play()
     else
-        GameTab.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-        ListTab.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-        GameContainer.Visible = false
-        ListContainer.Visible = true
+        GameTab.TextColor3 = Color3.fromRGB(160, 160, 170)
+        ListTab.TextColor3 = Color3.new(1,1,1)
+        tween:Create(Indicator, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.fromOffset(0, 50)}):Play()
     end
 end
 
 GameTab.MouseButton1Click:Connect(function() switchTab("Game") end)
 ListTab.MouseButton1Click:Connect(function() switchTab("List") end)
 
--- Draggable logic
+-- Dragging
 local dragging, dragInput, dragStart, startPos
-MainFrame.InputBegan:Connect(function(inp)
+TopBar.InputBegan:Connect(function(inp)
     if inp.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = inp.Position
@@ -149,7 +185,7 @@ MainFrame.InputBegan:Connect(function(inp)
         end)
     end
 end)
-MainFrame.InputChanged:Connect(function(inp)
+TopBar.InputChanged:Connect(function(inp)
     if inp.UserInputType == Enum.UserInputType.MouseMovement then dragInput = inp end
 end)
 input.InputChanged:Connect(function(inp)
@@ -159,93 +195,93 @@ input.InputChanged:Connect(function(inp)
     end
 end)
 
--- =========================================================
--- ELEMENTS API (For game scripts)
--- =========================================================
+-- Elements API
 local Elements = {}
-
 function Elements:Label(text)
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 0, 24)
+    lbl.Size = UDim2.new(1, 0, 0, 20)
     lbl.BackgroundTransparency = 1
     lbl.Text = text
     lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 14
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = GameContainer
-    return lbl
-end
-
-function Elements:Button(text, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 32)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-    btn.Text = text
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamMedium
-    btn.TextSize = 13
-    btn.Parent = GameContainer
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    btn.MouseButton1Click:Connect(callback)
-    return btn
-end
-
-function Elements:Toggle(text, default, callback)
-    local holder = Instance.new("TextButton")
-    holder.Size = UDim2.new(1, 0, 0, 36)
-    holder.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    holder.Text = ""
-    holder.Parent = GameContainer
-    Instance.new("UICorner", holder).CornerRadius = UDim.new(0, 6)
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -60, 1, 0)
-    lbl.Position = UDim2.fromOffset(10, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
-    lbl.Font = Enum.Font.GothamMedium
+    lbl.Font = Enum.Font.GothamBold
     lbl.TextSize = 13
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = holder
+    lbl.Parent = GameContainer
+end
 
-    local toggleBg = Instance.new("Frame")
-    toggleBg.Size = UDim2.fromOffset(36, 20)
-    toggleBg.Position = UDim2.new(1, -46, 0.5, -10)
-    toggleBg.BackgroundColor3 = default and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 65)
-    toggleBg.Parent = holder
-    Instance.new("UICorner", toggleBg).CornerRadius = UDim.new(0, 99)
+function Elements:Button(text, cb)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, 0, 0, 34)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    b.Text = text
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamMedium
+    b.TextSize = 13
+    b.Parent = GameContainer
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    b.MouseButton1Click:Connect(cb)
+end
 
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.fromOffset(16, 16)
-    knob.Position = default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-    knob.BackgroundColor3 = Color3.new(1,1,1)
-    knob.Parent = toggleBg
-    Instance.new("UICorner", knob).CornerRadius = UDim.new(0, 99)
+function Elements:Toggle(text, default, cb)
+    local h = Instance.new("TextButton")
+    h.Size = UDim2.new(1, 0, 0, 36)
+    h.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    h.Text = ""
+    h.Parent = GameContainer
+    Instance.new("UICorner", h).CornerRadius = UDim.new(0, 6)
 
-    local isToggled = default
-    holder.MouseButton1Click:Connect(function()
-        isToggled = not isToggled
-        toggleBg.BackgroundColor3 = isToggled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 65)
-        tween:Create(knob, TweenInfo.new(0.15), { Position = isToggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8) }):Play()
-        callback(isToggled)
+    local l = Instance.new("TextLabel")
+    l.Size = UDim2.new(1, -60, 1, 0)
+    l.Position = UDim2.fromOffset(10, 0)
+    l.BackgroundTransparency = 1
+    l.Text = text
+    l.TextColor3 = Color3.fromRGB(220, 220, 220)
+    l.Font = Enum.Font.GothamMedium
+    l.TextSize = 13
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Parent = h
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.fromOffset(36, 20)
+    bg.Position = UDim2.new(1, -46, 0.5, -10)
+    bg.BackgroundColor3 = default and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 65)
+    bg.Parent = h
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 99)
+
+    local k = Instance.new("Frame")
+    k.Size = UDim2.fromOffset(16, 16)
+    k.Position = default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+    k.BackgroundColor3 = Color3.new(1,1,1)
+    k.Parent = bg
+    Instance.new("UICorner", k).CornerRadius = UDim.new(0, 99)
+
+    local state = default
+    h.MouseButton1Click:Connect(function()
+        state = not state
+        bg.BackgroundColor3 = state and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 65)
+        tween:Create(k, TweenInfo.new(0.15), { Position = state and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8) }):Play()
+        cb(state)
     end)
-    task.defer(function() callback(isToggled) end)
-    return holder
+    task.defer(function() cb(state) end)
 end
 
 env.CelestElements = Elements
 
--- =========================================================
--- KILL SWITCH
--- =========================================================
+-- Kill Switch
 KillBtn.MouseButton1Click:Connect(function()
     for k, v in pairs(getgenv()) do
         if type(v) == "boolean" then getgenv()[k] = false end
     end
     MainUI:Destroy()
-    loadstring(game:HttpGet(env.getgitpath("src").."init.lua"))() 
+end)
+
+-- Minimize Switch
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    MainFrame.Size = minimized and UDim2.fromOffset(600, 35) or UDim2.fromOffset(600, 400)
+    Sidebar.Visible = not minimized
+    ContentArea.Visible = not minimized
 end)
 
 -- =========================================================
@@ -254,7 +290,7 @@ end)
 local currentPlaceId = tostring(game.PlaceId)
 local fetchUrl = env.getgitpath("games") .. currentPlaceId .. ".lua"
 
-local success = pcall(function()
+local ok = pcall(function()
     local code = game:HttpGet(fetchUrl)
     if code and code ~= "404: Not Found" and #code > 0 then
         loadstring(code)()(Elements)
@@ -263,7 +299,7 @@ local success = pcall(function()
     error()
 end)
 
-if not success then
+if not ok then
     local localPath = "BrainrotPolice/Games/" .. currentPlaceId .. ".lua"
     if isfile(localPath) then
         loadstring(readfile(localPath))()(Elements)
@@ -275,13 +311,14 @@ if not success then
 end
 
 -- =========================================================
--- LOAD GAMES LIST & AUTO-EXECUTE ON TELEPORT
+-- LOAD YOUR GAME LIST & AUTO EXECUTE ON TELEPORT
 -- =========================================================
-local gameListSuccess, gameList = pcall(function()
-    return http:JSONDecode(game:HttpGet(env.getgitpath("src") .. "gameslist.json"))
+-- THIS WAS THE FIX: It now pulls from YOUR json file.
+local listOk, gameList = pcall(function()
+    return http:JSONDecode(game:HttpGet(BASE_URL .. "src/gameslist.json"))
 end)
 
-if gameListSuccess and gameList then
+if listOk and gameList then
     for _, g in ipairs(gameList) do
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(1, 0, 0, 36)
@@ -295,22 +332,21 @@ if gameListSuccess and gameList then
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
         
         btn.MouseButton1Click:Connect(function()
-            -- Queues the script to auto-execute when you load into the new game
             if queue_on_teleport then
-                queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/IcantAffordSynapse/BrainrotPolice/refs/heads/main/src/init.lua"))()')
+                -- Queues using YOUR github link so it auto-executes the UI on join
+                queue_on_teleport('loadstring(game:HttpGet("' .. BASE_URL .. 'src/init.lua"))()')
             end
-            -- Teleports you to the game
             game:GetService("TeleportService"):Teleport(tonumber(g.id))
         end)
     end
 else
-    local errLbl = Instance.new("TextLabel")
-    errLbl.Size = UDim2.new(1, 0, 0, 24)
-    errLbl.BackgroundTransparency = 1
-    errLbl.Text = "Failed to load gameslist.json"
-    errLbl.TextColor3 = Color3.fromRGB(255, 100, 100)
-    errLbl.Font = Enum.Font.Gotham
-    errLbl.Parent = ListContainer
+    local err = Instance.new("TextLabel")
+    err.Size = UDim2.new(1, 0, 0, 24)
+    err.BackgroundTransparency = 1
+    err.Text = "❌ Failed to load gameslist.json"
+    err.TextColor3 = Color3.fromRGB(255, 100, 100)
+    err.Font = Enum.Font.Gotham
+    err.Parent = ListContainer
 end
 
-switchTab("Game") 
+switchTab("Game")
