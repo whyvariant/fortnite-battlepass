@@ -27,7 +27,7 @@ MainUI.Parent = hui
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.fromOffset(620, 420)
 MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 MainFrame.BackgroundTransparency = 0.15
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -39,6 +39,7 @@ Stroke.Color = Color3.fromRGB(255, 255, 255)
 Stroke.Transparency = 0.85
 Stroke.Thickness = 1
 
+-- Top Bar (Header)
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 40)
 TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
@@ -55,49 +56,58 @@ TopBarFix.BorderSizePixel = 0
 TopBarFix.Parent = TopBar
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(0, 200, 1, 0)
-Title.Position = UDim2.fromOffset(15, 0)
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Position = UDim2.fromOffset(0, 0)
 Title.BackgroundTransparency = 1
 Title.Text = "Celest"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 14
-Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextXAlignment = Enum.TextXAlignment.Center
 Title.Parent = TopBar
 
-local MinimizeBtn = Instance.new("TextButton")
-MinimizeBtn.Size = UDim2.fromOffset(30, 26)
-MinimizeBtn.Position = UDim2.new(1, -85, 0, 7)
-MinimizeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
-MinimizeBtn.Text = "—"
-MinimizeBtn.TextColor3 = Color3.new(1,1,1)
-MinimizeBtn.Font = Enum.Font.GothamBold
-MinimizeBtn.TextSize = 14
-MinimizeBtn.Parent = TopBar
-Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(0, 6)
+-- Traffic Lights (MacOS Style)
+local TrafficContainer = Instance.new("Frame")
+TrafficContainer.Size = UDim2.fromOffset(60, 40)
+TrafficContainer.Position = UDim2.fromOffset(15, 0)
+TrafficContainer.BackgroundTransparency = 1
+TrafficContainer.Parent = TopBar
+local UIList = Instance.new("UIListLayout", TrafficContainer)
+UIList.FillDirection = Enum.FillDirection.Horizontal
+UIList.VerticalAlignment = Enum.VerticalAlignment.Center
+UIList.Padding = UDim.new(0, 8)
 
-local KillBtn = Instance.new("TextButton")
-KillBtn.Size = UDim2.fromOffset(30, 26)
-KillBtn.Position = UDim2.new(1, -45, 0, 7)
-KillBtn.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
-KillBtn.Text = "X"
-KillBtn.TextColor3 = Color3.new(1,1,1)
-KillBtn.Font = Enum.Font.GothamBold
-KillBtn.TextSize = 14
-KillBtn.Parent = TopBar
-Instance.new("UICorner", KillBtn).CornerRadius = UDim.new(0, 6)
+local function makeTrafficBtn(color, name)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.fromOffset(12, 12)
+    btn.BackgroundColor3 = color
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.Parent = TrafficContainer
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = Color3.fromRGB(0, 0, 0)
+    stroke.Transparency = 0.8
+    return btn
+end
 
+local RedBtn = makeTrafficBtn(Color3.fromRGB(255, 95, 86), "Red")
+local YellowBtn = makeTrafficBtn(Color3.fromRGB(255, 189, 46), "Yellow")
+local GreenBtn = makeTrafficBtn(Color3.fromRGB(39, 201, 63), "Green")
+
+-- Sidebar
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.fromOffset(150, 380)
 Sidebar.Position = UDim2.fromOffset(0, 40)
-Sidebar.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+Sidebar.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Sidebar.BackgroundTransparency = 0.3
 Sidebar.Parent = MainFrame
 
 local ContentArea = Instance.new("Frame")
 ContentArea.Size = UDim2.new(1, -150, 1, -40)
 ContentArea.Position = UDim2.fromOffset(150, 40)
-ContentArea.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+ContentArea.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 ContentArea.BackgroundTransparency = 0.3
 ContentArea.Parent = MainFrame
 
@@ -161,13 +171,13 @@ HomeText.Font = Enum.Font.GothamMedium
 HomeText.TextSize = 18
 HomeText.Parent = HomeContainer
 
-local function makeTab(name, icon, yPos)
+local function makeTab(name, yPos)
     local b = Instance.new("TextButton")
     b.Size = UDim2.new(1, -20, 0, 35)
     b.Position = UDim2.fromOffset(10, yPos)
     b.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     b.BackgroundTransparency = 1
-    b.Text = "  " .. icon .. "  " .. name
+    b.Text = "  " .. name
     b.TextColor3 = Color3.fromRGB(160, 160, 170)
     b.Font = Enum.Font.GothamMedium
     b.TextSize = 13
@@ -177,11 +187,11 @@ local function makeTab(name, icon, yPos)
     return b
 end
 
-local HomeTab = makeTab("Home", "🏠", 10)
-local GameTab = makeTab("Game", "🎮", 50)
-local ListTab = makeTab("Games List", "📋", 90)
-local ScriptsTab = makeTab("Scripts", "📜", 130)
-local SettingsTab = makeTab("Settings", "⚙️", 170)
+local HomeTab = makeTab("Home", 10)
+local GameTab = makeTab("Game", 50)
+local ListTab = makeTab("Games List", 90)
+local ScriptsTab = makeTab("Scripts", 130)
+local SettingsTab = makeTab("Settings", 170)
 
 local function switchTab(activeTab)
     for _, container in ipairs({GameContainer, ListContainer, SettingsContainer, HomeContainer, ScriptsContainer}) do
@@ -225,6 +235,24 @@ input.InputChanged:Connect(function(inp)
     end
 end)
 
+-- Minimized Floating Logo
+local FloatLogo = Instance.new("TextButton")
+FloatLogo.Name = "CelestLogo"
+FloatLogo.Size = UDim2.fromOffset(120, 36)
+FloatLogo.Position = UDim2.new(1, -140, 0, 20)
+FloatLogo.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+FloatLogo.Text = "Celest"
+FloatLogo.TextColor3 = Color3.fromRGB(255, 255, 255)
+FloatLogo.Font = Enum.Font.GothamBold
+FloatLogo.TextSize = 14
+FloatLogo.Visible = false
+FloatLogo.Parent = MainUI
+Instance.new("UICorner", FloatLogo).CornerRadius = UDim.new(0, 8)
+local FloatStroke = Instance.new("UIStroke", FloatLogo)
+FloatStroke.Color = Color3.fromRGB(0, 170, 255)
+FloatStroke.Transparency = 0.5
+
+-- Elements API
 local Elements = {}
 function Elements:Label(text, container)
     local lbl = Instance.new("TextLabel")
@@ -300,100 +328,33 @@ function Elements:Toggle(text, default, cb, container)
     task.defer(function() cb(state) end)
 end
 
-function Elements:Slider(text, min, max, default, cb, container)
-    local h = Instance.new("TextButton")
-    h.Size = UDim2.new(1, 0, 0, 50)
-    h.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    h.Text = ""
-    h.AutoButtonColor = false
-    h.Parent = container or GameContainer
-    Instance.new("UICorner", h).CornerRadius = UDim.new(0, 6)
-
-    local l = Instance.new("TextLabel")
-    l.Size = UDim2.new(1, -20, 0, 20)
-    l.Position = UDim2.fromOffset(10, 5)
-    l.BackgroundTransparency = 1
-    l.Text = text
-    l.TextColor3 = Color3.fromRGB(220, 220, 220)
-    l.Font = Enum.Font.GothamMedium
-    l.TextSize = 13
-    l.TextXAlignment = Enum.TextXAlignment.Left
-    l.Parent = h
-
-    local valLabel = Instance.new("TextLabel")
-    valLabel.Size = UDim2.new(0, 50, 0, 20)
-    valLabel.Position = UDim2.new(1, -60, 0, 5)
-    valLabel.BackgroundTransparency = 1
-    valLabel.Text = tostring(default)
-    valLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
-    valLabel.Font = Enum.Font.GothamBold
-    valLabel.TextSize = 13
-    valLabel.TextXAlignment = Enum.TextXAlignment.Right
-    valLabel.Parent = h
-
-    local track = Instance.new("Frame")
-    track.Size = UDim2.new(1, -20, 0, 6)
-    track.Position = UDim2.new(0, 10, 1, -15)
-    track.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-    track.Parent = h
-    Instance.new("UICorner", track).CornerRadius = UDim.new(0, 99)
-
-    local fill = Instance.new("Frame")
-    local percent = (default - min) / (max - min)
-    fill.Size = UDim2.fromScale(percent, 1)
-    fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    fill.Parent = track
-    Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 99)
-
-    local draggingSlider = false
-    h.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-            draggingSlider = true
-        end
-    end)
-    input.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-            draggingSlider = false
-        end
-    end)
-    input.InputChanged:Connect(function(inp)
-        if draggingSlider and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-            local mouseX = inp.Position.X
-            local trackX = track.AbsolutePosition.X
-            local trackWidth = track.AbsoluteSize.X
-            local p = math.clamp((mouseX - trackX) / trackWidth, 0, 1)
-            
-            local val = min + (max - min) * p
-            if max <= 1 then
-                val = math.floor(val * 100 + 0.5) / 100
-            else
-                val = math.floor(val + 0.5)
-            end
-            
-            fill.Size = UDim2.fromScale(p, 1)
-            valLabel.Text = tostring(val)
-            cb(val)
-        end
-    end)
-    task.defer(function() cb(default) end)
-end
-
 env.CelestElements = Elements
 
-KillBtn.MouseButton1Click:Connect(function()
+-- Traffic Light Logic
+RedBtn.MouseButton1Click:Connect(function()
     for k, v in pairs(getgenv()) do
         if type(v) == "boolean" then getgenv()[k] = false end
     end
     MainUI:Destroy()
 end)
 
-local minimized = false
-MinimizeBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    local targetSize = minimized and UDim2.fromOffset(620, 40) or UDim2.fromOffset(620, 420)
+YellowBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    FloatLogo.Visible = true
+end)
+
+FloatLogo.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    FloatLogo.Visible = false
+end)
+
+local isFolded = false
+GreenBtn.MouseButton1Click:Connect(function()
+    isFolded = not isFolded
+    local targetSize = isFolded and UDim2.fromOffset(620, 40) or UDim2.fromOffset(620, 420)
     tween:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = targetSize}):Play()
-    Sidebar.Visible = not minimized
-    ContentArea.Visible = not minimized
+    Sidebar.Visible = not isFolded
+    ContentArea.Visible = not isFolded
 end)
 
 env.AutoRejoin = false
