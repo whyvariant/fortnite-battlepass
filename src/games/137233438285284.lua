@@ -47,6 +47,7 @@ return function(elements)
                     egg:Destroy()
                 end
                 pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
+                
                 task.wait()
             end
         end)
@@ -74,6 +75,7 @@ return function(elements)
                 if tobuy > 0 then
                     pcall(function() mainFunction:InvokeServer("Buy Chickens", tobuy) end)
                 end
+                
                 task.wait()
             end
         end)
@@ -90,6 +92,7 @@ return function(elements)
                     mainFunction:InvokeServer("Upgrade Process Level")
                     mainFunction:InvokeServer("Merge Chickens")
                 end)
+                
                 task.wait()
             end
         end)
