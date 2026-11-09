@@ -50,6 +50,8 @@ return function(elements)
                 for _, egg in ipairs(eggsFolder:GetChildren()) do
                     if not env.AutoCollectEggs then break end
                     mainEvent:FireServer("Collect Egg", egg.Name)
+                    task.wait(0.01)
+                    egg:Destroy()
                 end
                 pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
                 task.wait(env.FarmSpeed)
