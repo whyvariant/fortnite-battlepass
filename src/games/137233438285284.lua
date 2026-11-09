@@ -3,50 +3,15 @@ return function(elements)
     local env = getgenv()
     local plr = game:GetService("Players").LocalPlayer
 
-    -- Safely grab the remotes and UI
-    local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Paper"):WaitForChild("Remotes")
-    local mainEvent = remotes:WaitForChild("__remoteevent")
-    local mainFunction = remotes:WaitForChild("__remotefunction")
-    local eggsFolder = workspace:WaitForChild("Eggs")
+    local remotes = game:GetService("ReplicatedStorage").Paper.Remotes
+    local mainEvent = remotes.__remoteevent
+    local mainFunction = remotes.__remotefunction
+    local eggsFolder = workspace.Eggs
     
-    -- Wait for the player's plot to load
-    local plot = workspace:WaitForChild("Plots"):WaitForChild(plr.Name)
-    local buyBtns = plot:WaitForChild("Buttons"):WaitForChild("BuyChickens")
-    local cashText = plr.PlayerGui:WaitForChild("Main"):WaitForChild("Currencies"):WaitForChild("Cash"):WaitForChild("List"):WaitForChild("Amount")
+    local plot = workspace.Plots[plr.Name]
+    local buyBtns = plot.Buttons.BuyChickens
+    local cashText = plr.PlayerGui.Main.Currencies.Cash.List.Amount
 
-    -- =========================================================
-    -- MODULE 1: AUTO COLLECT (EGGS)
-    -- =========================================================
-    elements:Label("🥚 Egg Collection")
-    env.AutoCollectEggs = false
-    
-    elements:Toggle("Auto Collect Eggs", false, function(state)
-        env.AutoCollectEggs = state
-        if not state then return end
-        
-        task.spawn(function()
-            while env.AutoCollectEggs do
-                -- Collect existing eggs
-                for _, egg in ipairs(eggsFolder:GetChildren()) do
-                    if not env.AutoCollectEggs then break end
-                    mainEvent:FireServer("Collect Egg", egg.Name)
-                    egg:Destroy()
-                end
-                
-                -- Deposit them
-                pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
-                
-                task.wait(0.5)
-            end
-        end)
-    end)
-
-    -- =========================================================
-    -- MODULE 2: AUTO BUY CHICKENS
-    -- =========================================================
-    elements:Label("🐔 Chicken Purchasing")
-    
-    -- Number parser for suffixes (K, M, B, T, etc.)
     local suffixes = {
         "K","M","B","T","Qd","Qn","Sx","Sp","Oc","No","De",
         "UDe","DDe","TDe","QdDe","QnDe","SxDe","SpDe","OcDe","NoDe","Vt",
@@ -71,17 +36,34 @@ return function(elements)
         return base * (multiplier or 1)
     end
 
+    elements:Label("Eggs")
+    env.AutoCollectEggs = false
+    elements:Toggle("Auto Collect Eggs", false, function(state)
+        env.AutoCollectEggs = state
+        if not state then return end
+        task.spawn(function()
+            while env.AutoCollectEggs do
+                for _, egg in ipairs(eggsFolder:GetChildren()) do
+                    if not env.AutoCollectEggs then break end
+                    mainEvent:FireServer("Collect Egg", egg.Name)
+                    egg:Destroy()
+                end
+                pcall(function() mainFunction:InvokeServer("Deposit Eggs") end)
+                task.wait(0.5)
+            end
+        end)
+    end)
+
+    elements:Label("Chickens")
     env.AutoBuyChickens = false
     elements:Toggle("Auto Buy Chickens", false, function(state)
         env.AutoBuyChickens = state
         if not state then return end
-        
         task.spawn(function()
             while env.AutoBuyChickens do
                 local tobuy = 0
                 local result = parseSuffixedNumber(cashText.Text)
                 
-                -- Check which we can afford
                 if parseSuffixedNumber(buyBtns.Buy100.Button.UI.Cost.Text) <= result then
                     tobuy = 100
                 elseif parseSuffixedNumber(buyBtns.Buy25.Button.UI.Cost.Text) <= result then
@@ -100,15 +82,11 @@ return function(elements)
         end)
     end)
 
-    -- =========================================================
-    -- MODULE 3: AUTO FARM (UPGRADE & MERGE)
-    -- =========================================================
-    elements:Label("💰 Income & Merging")
+    elements:Label("Income")
     env.AutoFarmCash = false
     elements:Toggle("Auto Collect Cash & Merge", false, function(state)
         env.AutoFarmCash = state
         if not state then return end
-        
         task.spawn(function()
             while env.AutoFarmCash do
                 pcall(function()
