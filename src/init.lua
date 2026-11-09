@@ -1,5 +1,19 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- Clean up old Rayfield interfaces before creating a new one
+for _, gui in ipairs(game:GetService("CoreGui"):GetChildren()) do
+    if gui.Name == "Rayfield" or gui.Name == "Rayfield-Old" then
+        gui:Destroy()
+    end
+end
+if gethui then
+    for _, gui in ipairs(gethui():GetChildren()) do
+        if gui.Name == "Rayfield" or gui.Name == "Rayfield-Old" then
+            gui:Destroy()
+        end
+    end
+end
+
 local Window = Rayfield:CreateWindow({
    Name = "Celest",
    LoadingTitle = "Celest",
@@ -11,18 +25,16 @@ local Window = Rayfield:CreateWindow({
 local HTTP = game:GetService("HttpService")
 local BASE_URL = "https://raw.githubusercontent.com/whyvariant/fortnite-battlepass/main/"
 
-local GameTab = Window:CreateTab("Game", 4483362458)
-local ListTab = Window:CreateTab("Games List", 4483362458)
-local ScriptsTab = Window:CreateTab("Scripts", 4483362458)
-local SettingsTab = Window:CreateTab("Settings", 4483362458)
+local GameTab = Window:CreateTab("Game", "gamepad-2")
+local ListTab = Window:CreateTab("Games List", "layout-grid")
+local ScriptsTab = Window:CreateTab("Scripts", "code-2")
+local SettingsTab = Window:CreateTab("Settings", "settings")
 
 local isAutoExecute = true
-
 local placeId = tostring(game.PlaceId)
-local fetchUrl = BASE_URL .. "src/games/" .. placeId .. ".lua"
 
 local ok, code = pcall(function()
-    return game:HttpGet(fetchUrl)
+    return game:HttpGet(BASE_URL .. "src/games/" .. placeId .. ".lua")
 end)
 
 if ok and code and code ~= "404: Not Found" and #code > 0 then
