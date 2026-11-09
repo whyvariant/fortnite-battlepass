@@ -4,9 +4,6 @@ local http = game:GetService("HttpService")
 local tween = game:GetService("TweenService")
 local input = game:GetService("UserInputService")
 
--- =========================================================
--- YOUR NEW GITHUB URL
--- =========================================================
 local GITHUB_USER = "whyvariant"
 local GITHUB_REPO = "fortnite-battlepass"
 local BASE_URL = "https://raw.githubusercontent.com/" .. GITHUB_USER .. "/" .. GITHUB_REPO .. "/main/"
@@ -16,17 +13,11 @@ function env.getgitpath(where)
     elseif where == "games" then return BASE_URL .. "src/games/" end
 end
 
--- =========================================================
--- CLEAN UP OLD UI
--- =========================================================
 local CoreGui = game:GetService("CoreGui")
 local hui = gethui and gethui() or CoreGui
 local oldUI = hui:FindFirstChild("NewBrainrotUI")
 if oldUI then oldUI:Destroy() end
 
--- =========================================================
--- BUILD CLEAN UI
--- =========================================================
 local MainUI = Instance.new("ScreenGui")
 MainUI.Name = "NewBrainrotUI"
 MainUI.ResetOnSpawn = false
@@ -45,14 +36,12 @@ local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(50, 50, 60)
 MainStroke.Thickness = 1
 
--- Top Bar
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 35)
 TopBar.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
 TopBar.Parent = MainFrame
 Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 8)
 
--- Hide bottom corners of top bar
 local TopBarFix = Instance.new("Frame")
 TopBarFix.Size = UDim2.new(1, 0, 0, 10)
 TopBarFix.Position = UDim2.new(0, 0, 1, -10)
@@ -91,14 +80,12 @@ KillBtn.Font = Enum.Font.GothamBold
 KillBtn.Parent = TopBar
 Instance.new("UICorner", KillBtn).CornerRadius = UDim.new(0, 4)
 
--- Sidebar Background
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.fromOffset(140, 365)
 Sidebar.Position = UDim2.fromOffset(0, 35)
 Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 Sidebar.Parent = MainFrame
 
--- Smooth Tab Indicator
 local Indicator = Instance.new("Frame")
 Indicator.Size = UDim2.fromOffset(3, 30)
 Indicator.Position = UDim2.fromOffset(0, 15)
@@ -107,14 +94,12 @@ Indicator.BorderSizePixel = 0
 Indicator.Parent = Sidebar
 Instance.new("UICorner", Indicator).CornerRadius = UDim.new(0, 4)
 
--- Content Area
 local ContentArea = Instance.new("Frame")
 ContentArea.Size = UDim2.new(1, -140, 1, -35)
 ContentArea.Position = UDim2.fromOffset(140, 35)
 ContentArea.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 ContentArea.Parent = MainFrame
 
--- Scroll Containers
 local GameContainer = Instance.new("ScrollingFrame")
 GameContainer.Size = UDim2.new(1, -20, 1, -20)
 GameContainer.Position = UDim2.fromOffset(10, 10)
@@ -136,7 +121,6 @@ ListContainer.Visible = false
 ListContainer.Parent = ContentArea
 Instance.new("UIListLayout", ListContainer).Padding = UDim.new(0, 8)
 
--- Sidebar Buttons
 local function makeTab(name, yPos)
     local b = Instance.new("TextButton")
     b.Size = UDim2.new(1, -20, 0, 30)
@@ -154,7 +138,6 @@ end
 local GameTab = makeTab("Game", 15)
 local ListTab = makeTab("Games List", 50)
 
--- Tab Logic
 local function switchTab(t)
     GameContainer.Visible = (t == "Game")
     ListContainer.Visible = (t == "List")
@@ -173,7 +156,6 @@ end
 GameTab.MouseButton1Click:Connect(function() switchTab("Game") end)
 ListTab.MouseButton1Click:Connect(function() switchTab("List") end)
 
--- Dragging
 local dragging, dragInput, dragStart, startPos
 TopBar.InputBegan:Connect(function(inp)
     if inp.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -195,7 +177,6 @@ input.InputChanged:Connect(function(inp)
     end
 end)
 
--- Elements API
 local Elements = {}
 function Elements:Label(text)
     local lbl = Instance.new("TextLabel")
@@ -267,7 +248,6 @@ end
 
 env.CelestElements = Elements
 
--- Kill Switch
 KillBtn.MouseButton1Click:Connect(function()
     for k, v in pairs(getgenv()) do
         if type(v) == "boolean" then getgenv()[k] = false end
@@ -275,7 +255,6 @@ KillBtn.MouseButton1Click:Connect(function()
     MainUI:Destroy()
 end)
 
--- Minimize Switch
 local minimized = false
 MinimizeBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
@@ -284,9 +263,6 @@ MinimizeBtn.MouseButton1Click:Connect(function()
     ContentArea.Visible = not minimized
 end)
 
--- =========================================================
--- LOAD GAME SCRIPT
--- =========================================================
 local currentPlaceId = tostring(game.PlaceId)
 local fetchUrl = env.getgitpath("games") .. currentPlaceId .. ".lua"
 
@@ -310,10 +286,6 @@ if not ok then
     end
 end
 
--- =========================================================
--- LOAD YOUR GAME LIST & AUTO EXECUTE ON TELEPORT
--- =========================================================
--- THIS WAS THE FIX: It now pulls from YOUR json file.
 local listOk, gameList = pcall(function()
     return http:JSONDecode(game:HttpGet(BASE_URL .. "src/gameslist.json"))
 end)
@@ -333,7 +305,6 @@ if listOk and gameList then
         
         btn.MouseButton1Click:Connect(function()
             if queue_on_teleport then
-                -- Queues using YOUR github link so it auto-executes the UI on join
                 queue_on_teleport('loadstring(game:HttpGet("' .. BASE_URL .. 'src/init.lua"))()')
             end
             game:GetService("TeleportService"):Teleport(tonumber(g.id))
